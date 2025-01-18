@@ -1,0 +1,62 @@
+---
+title: "DataWizards1"
+author: "Padmaja Dasanayaka"
+date: "2024-12-28"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+before <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/PROJECTS/ML model/fraud_detection_dataset.csv")
+
+after <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/PROJECTS/DataWizards/Datawizards.csv")
+```
+
+
+## Fico Score
+```{r}
+
+# Draw histogram with density
+hist(before$fico_score, breaks = 30, freq = FALSE, col = "lightblue",
+     main = "Histogram of FICO Scores before imputation", 
+     xlab = "FICO Score", border = "black")
+
+# Add a density line
+lines(density(before$fico_score, na.rm = TRUE), col = "red", lwd = 2)
+
+# Draw histogram with density
+hist(after$fico_score, breaks = 30, freq = FALSE, col = "lightblue",
+     main = "Histogram of FICO Scores after imputation", 
+     xlab = "FICO Score", border = "black")
+
+# Add a density line
+lines(density(after$fico_score, na.rm = TRUE), col = "red", lwd = 2)
+
+```
+
+
+## Average Balance of Last 12 Months
+```{r}
+
+# Draw histogram with density
+hist(before$avg_balance_last_12months, breaks = 30, freq = FALSE, col = "lightblue",
+     main = "Histogram of Average Balance of Last 12 Months before imputation", 
+     xlab = "FICO Score", border = "black")
+
+# Add a density line
+lines(density(before$avg_balance_last_12months, na.rm = TRUE), col = "red", lwd = 2)
+
+# Draw histogram with density
+hist(after$avg_balance_last_12months, breaks = 30, freq = FALSE, col = "lightblue",
+     main = "Histogram of Average Balance of Last 12 Months after imputation", 
+     xlab = "FICO Score", border = "black")
+
+# Add a density line
+lines(density(after$avg_balance_last_12months, na.rm = TRUE), col = "red", lwd = 2)
+
+
+```
+
+
+

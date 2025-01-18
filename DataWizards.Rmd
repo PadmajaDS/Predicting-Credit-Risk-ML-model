@@ -1,0 +1,1763 @@
+---
+title: "data converted"
+author: "Data Wizards"
+date: "2024-11-25"
+output: html_document
+---
+
+```{r}
+library(Metrics)
+library(tidyr)
+library(dplyr)
+
+df <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/data_date_converted - Copy.csv")
+head((df))
+df1<- df
+head(df1)
+
+#Set the desired split ratio (70/10) 
+
+split_ratio <- 0.7 
+# Split df1 into training and test sets
+df1_bound <- ceiling(nrow(df1) * split_ratio) 
+df1_bound 
+
+## 3536 
+train1 <- df1 %>% slice_sample(n = df1_bound, replace = FALSE) 
+train1
+
+
+test1 <- df1[-as.numeric(rownames(train1)),]
+test1
+
+
+
+library(MASS)
+
+
+model_step <- lm(fico_score ~ ., data = train1)
+model_step
+
+
+step.model <- stepAIC(model_step, direction = "both", trace = TRUE)
+step.model
+
+summary(step.model)
+
+summary_step <- summary(step.model)
+summary_step
+
+
+
+par(mfrow = c(2,2))
+plot(step.model, which = 1)
+plot(step.model, which = 2)
+residuals <- summary_step$res
+plot(1:nrow(train1), residuals, main = "Residual. vs Observation", xlab = "Observation", ylab = "Residuals", pch =1)
+plot(step.model, which = 4)
+
+
+# Make predictions on the test set
+predictions <- predict(step.model, newdata = test1)
+
+
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((predictions - test1$fico_score)^2)
+cat("Mean Squared Error (MSE):",mse,"\n")
+
+library(psych)
+
+
+
+```
+
+
+```{r }
+
+ ######################## number_of_delinquent_accounts ################
+#####Propotion estimation
+
+table(train1$number_of_delinquent_accounts)
+table(test1$number_of_delinquent_accounts)
+nrow(train1)
+nrow(test1)
+
+#install.packages("psych")
+library(psych)
+head(test1)
+describe(test1$number_of_delinquent_accounts)
+```
+
+
+```{r}
+set.seed(1214)
+
+#Set the desired split ratio (80/10) 
+
+split_ratio1 <- 0.8 
+# Split df1 into training and test sets
+df2_bound <- ceiling(nrow(df1) * split_ratio1) 
+df2_bound 
+## 3536 
+train2 <- df1 %>% slice_sample(n = df2_bound, replace = FALSE) 
+train2
+
+
+
+test2 <- df1[-as.numeric(rownames(train2)),]
+test2
+
+
+
+#####Propotion estimation
+
+table(train2$number_of_delinquent_accounts)
+table(test2$number_of_delinquent_accounts)
+nrow(train2)
+nrow(test2)
+
+#install.packages("psych")
+library(psych)
+head(test2)
+describe(test2$number_of_delinquent_accounts)
+```
+
+
+```{r}
+set.seed(150)
+
+#Set the desired split ratio (60/10) 
+
+split_ratio3 <- 0.6
+# Split df1 into training and test sets
+df3_bound <- ceiling(nrow(df1) * split_ratio3) 
+df3_bound 
+## 3536 
+train3 <- df1 %>% slice_sample(n = df3_bound, replace = FALSE) 
+train3
+
+
+
+test3 <- df1[-as.numeric(rownames(train3)),]
+test3
+
+
+
+#####Propotion estimation
+
+table(train3$number_of_delinquent_accounts)
+table(test3$number_of_delinquent_accounts)
+nrow(train3)
+nrow(test3)
+
+#install.packages("psych")
+library(psych)
+head(test3)
+describe(test3$number_of_delinquent_accounts)
+```
+
+
+
+```{r}
+
+#################### avg_balance_last_12months #######################
+#histogram for avg_balance_last_12months without missing values
+hist(df1$avg_balance_last_12months,
+     breaks = 100,
+     main = "Histogram of avg_balance_last_12months",
+     xlab = "delinquent accounts",
+     ylab = "Frequency",
+     col = "red")
+
+###############replace missing values by mean#######################
+df_new<-read.csv("C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_date_converted.csv")
+head(df)
+
+
+df4<-df_new
+df5<-df_new
+df6<-df_new
+
+#Replace avg_balance_last_12months by mean
+df4$avg_balance_last_12months[is.na(df4$avg_balance_last_12months)] <- mean(df4$avg_balance_last_12months,na.rm=TRUE)
+colSums(is.na(df4))
+print(df4)
+
+#histogram for avg_balance_last_12months by mean
+hist(df4$avg_balance_last_12months,
+     breaks = 100,
+     main = "Histogram of avg_balance_last_12months",
+     xlab = "avg balance last 12 months",
+     ylab = "Frequency",
+     col = "green")
+
+
+
+
+####################replace missing values by median##################
+
+#Replace avg_balance_last_12months by median
+df5$avg_balance_last_12months[is.na(df5$avg_balance_last_12months)] <- median(df5$avg_balance_last_12months,na.rm=TRUE)
+colSums(is.na(df5))
+
+
+#histogram for avg_balance_last_12months by median
+hist(df5$avg_balance_last_12months,
+     breaks = 100,
+     main = "Histogram of avg_balance_last_12months",
+     xlab = "avg balance last 12 months",
+     ylab = "Frequency",
+     col = "blue")
+
+
+###################replace missing values by mode#######################
+
+
+
+
+# Calculate the mode 
+mode_value <- as.numeric(names(sort(table(df6$avg_balance_last_12months), decreasing = TRUE))[1])
+
+# Impute missing values with the mode
+df6$avg_balance_last_12months[is.na(df6$avg_balance_last_12months)] <- mode_value
+
+print(df6)
+
+
+#histogram for avg_balance_last_12months by mode
+hist(df6$avg_balance_last_12months,
+     breaks = 100,
+     main = "Histogram of avg_balance_last_12months",
+     xlab = "avg balance last 12 months",
+     ylab = "Frequency",
+     col = "yellow")
+```
+
+
+```{r}
+# Plot the initial histogram to identify the threshold
+hist(df1$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram of avg_balance_last_12months", 
+     xlab = "avg_balance_last_12months", col = "red", border = "black")
+
+# Find the threshold value between the two peaks (this could be done manually or automatically)
+threshold <- 2500  # Example threshold, adjust based on the histogram observation
+
+# Split the data into two parts based on the threshold
+data_part1 <- df1[df$avg_balance_last_12months <= threshold, ]
+data_part2 <- df1[df$avg_balance_last_12months > threshold, ]
+
+# Plot the first histogram (for values <= threshold)
+hist(data_part1$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram for First Part", 
+     xlab = "avg_balance_last_12months", 
+     col = "lightgreen", border = "black")
+
+# Plot the second histogram (for values > threshold)
+hist(data_part2$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram for Second Part", 
+     xlab = "avg_balance_last_12months", col = "lightcoral", border = "black")
+```
+
+
+```{r}
+# Compute the density of the variable
+density_data <- density(df$avg_balance_last_12months)
+
+# Plot the density to visualize peaks and valleys
+plot(density_data, main = "Density of avg_balance_last_12months", 
+     xlab = "avg_balance_last_12months", col = "blue", lwd = 2)
+rug(df$avg_balance_last_12months)  # Add tick marks for actual data points
+
+# Identify peaks and valleys in the density curve
+peaks <- which(diff(sign(diff(density_data$y))) == -2)  # Peaks (local maxima)
+valleys <- which(diff(sign(diff(density_data$y))) == 2)  # Valleys (local minima)
+
+# Extract the x-values (avg_balance_last_12months) of peaks and valleys
+peak_values <- density_data$x[peaks]
+valley_values <- density_data$x[valleys]
+
+# Mark the peaks and valleys on the density plot
+points(peak_values, density_data$y[peaks], col = "red", pch = 19)  # Red dots for peaks
+points(valley_values, density_data$y[valleys], col = "green", pch = 19)  # Green dots for valleys
+
+# Add lines to indicate the ranges
+abline(v = valley_values, col = "purple", lty = 2)  # Dashed lines at valley positions
+
+# Print the valley values to identify the ranges
+cat("Identified valley points (boundaries):", valley_values, "\n")
+
+# Define the ranges based on valleys
+range1 <- c(min(df$avg_balance_last_12months), valley_values[1])  # Range before first valley
+range2 <- c(valley_values[1], max(df$avg_balance_last_12months))  # Range after first valley
+
+# Subset the data for each range
+data_part1 <- df[df$avg_balance_last_12months >= range1[1] & df$avg_balance_last_12months <= range1[2], ]
+data_part2 <- df[df$avg_balance_last_12months > range2[1] & df$avg_balance_last_12months <= range2[2], ]
+
+# Plot histograms for the two ranges
+par(mfrow = c(1, 2))  # Set up side-by-side plots
+hist(data_part1$avg_balance_last_12months, main = "Histogram for Range 1", 
+     xlab = "avg_balance_last_12months", col = "lightgreen", border = "black")
+hist(data_part2$avg_balance_last_12months, main = "Histogram for Range 2", 
+     xlab = "avg_balance_last_12months", col = "lightcoral", border = "black")
+```
+
+
+```{r}
+
+################identify two distibutions using histogram ##############
+
+
+# Compute the histogram without plotting
+hist_data <- hist(df1$avg_balance_last_12months, plot = FALSE)
+
+
+# Extract counts and midpoints of bins
+counts <- hist_data$counts
+midpoints <- hist_data$mids
+
+# Identify local minima
+minima_indices <- which(diff(sign(diff(counts))) == 2)  # Local minima indices
+minima_values <- midpoints[minima_indices]  # Corresponding x-values
+
+# Plot the histogram
+plot(hist_data, 
+     breaks=100,
+     col = "red", border = "black", main = "Histogram with Local Minima",
+     xlab = "avg_balance_last_12months", ylab = "Frequency")
+
+# Highlight local minima on the histogram
+points(minima_values, counts[minima_indices], col = "red", pch = 19)  # Red dots for minima
+text(minima_values, counts[minima_indices], labels = round(minima_values, 2), 
+     pos = 3, col = "red")  # Label minima with their values
+
+# Print the minima values
+cat("Local minima values (x):", minima_values, "\n")
+
+
+# Plot the histogram to visualize ranges
+hist(df1$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram of avg_balance_last_12months", 
+     xlab = "avg_balance_last_12months", col = "red", border = "black")
+
+data <- df1$avg_balance_last_12months
+
+
+# Create the histogram and store the result
+histogram <- hist(data, plot = FALSE)
+histogram
+
+# Print the breaks (endpoints)
+histogram$breaks
+
+# Define the ranges based on visual inspection or domain knowledge
+range1 <- c(0, 22500)   # Adjust range1 to match the lower distribution
+range2 <- c(22500, 92500)  # Adjust range2 to match the higher distribution
+
+# Subset the data for each range
+data_part1 <- df1[df1$avg_balance_last_12months >= range1[1] & df1$avg_balance_last_12months <= range1[2], ]
+data_part1
+
+data_part2 <- df1[df$avg_balance_last_12months >= range2[1] & df1$avg_balance_last_12months <= range2[2], ]
+data_part2
+
+# Plot histograms for the two ranges
+par(mfrow = c(1, 2))  # Set up side-by-side plots
+hist(data_part1$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram for Range 1", 
+     xlab = "avg_balance_last_12months", col = "lightgreen", border = "black")
+
+hist(data_part2$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram for Range 2", 
+     xlab = "avg_balance_last_12months", col = "lightcoral", border = "black")
+
+
+```
+
+
+```{r}
+############standardize teo data set and check normality ############
+ 
+# Select numeric columns in both datasets
+numeric_data_part1 <- data_part1[sapply(data_part1, is.numeric)]
+numeric_data_part2 <- data_part2[sapply(data_part2, is.numeric)]
+
+
+# Standardizing the datasets
+standardized_data_part1 <- scale(numeric_data_part1)
+standardized_data_part2 <- scale(numeric_data_part2)
+
+# Converting standardized data back to data frames (optional, if datasets are data frames)
+standardized_data_part1 <- as.data.frame(standardized_data_part1)
+standardized_data_part1
+
+standardized_data_part2 <- as.data.frame(standardized_data_part2)
+standardized_data_part2
+
+# Checking normality for each variable in data_part1
+
+cat("Normality test results for data_part1:\n")
+for (col in names(standardized_data_part1)) {
+  cat("Variable:", col, "\n")
+  print(shapiro.test(standardized_data_part1[[col]]))
+  qqnorm(standardized_data_part1[[col]])
+  qqline(standardized_data_part1[[col]])
+}
+
+# Checking normality for each variable in data_part2
+cat("Normality test results for data_part2:\n")
+for (col in names(standardized_data_part2)) {
+  cat("Variable:", col, "\n")
+  print(shapiro.test(standardized_data_part2[[col]]))
+  qqnorm(standardized_data_part2[[col]])
+  qqline(standardized_data_part2[[col]])
+}
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+str(df1$avg_balance_last_12_months)
+  # Inspect the structure of 'data'
+
+df1$avg_balance_last_12_months <- unlist(df1$avg_balance_last_12months)
+
+hist(df1$avg_balance_last_12months,
+     breaks=100,
+     main = "Histogram of avg_balance_last_12months", 
+     xlab = "avg_balance_last_12months", col = "red", border = "black")
+
+# K-means clustering
+set.seed(42)  # For reproducibility
+clusters <- kmeans(df1$avg_balance_last_12months, centers = 3)  # Example: 3 clusters
+
+# Add the cluster information back to the dataframe
+df1$cluster <- clusters$cluster
+
+library(scales)  # For transparency
+
+# Create cluster colors
+cluster_colors <- c("red", "blue", "green")  # Adjust for number of clusters
+
+# Plot histogram for each cluster
+hist(df1$avg_balance_last_12months[df1$cluster == 1], 
+     breaks = 20, 
+     col = alpha(cluster_colors[1], 0.5), 
+     xlim = range(df1$avg_balance_last_12_months), 
+     ylim = c(0, max(table(cut(df1$avg_balance_last_12months, breaks = 20)))), 
+     main = "Histogram with Clusters", 
+     xlab = "Avg Balance",
+     add = FALSE)
+
+for (i in 2:max(df1$cluster)) {
+  hist(df1$avg_balance_last_12_months[df1$cluster == i], 
+       breaks = 20, 
+       col = alpha(cluster_colors[i], 0.5), 
+       add = TRUE)
+}
+
+# Add legend
+legend("topright", legend = paste("Cluster", 1:max(df1$cluster)), fill = cluster_colors)
+
+
+library(ggplot2)
+
+# Create ggplot histogram with clustering
+ggplot(df1, aes(x = avg_balance_last_12months, fill = factor(cluster))) +
+  geom_histogram(binwidth = 500, alpha = 0.6, position = "identity") +
+  scale_fill_manual(values = cluster_colors) +
+  labs(title = "Histogram with Clusters", x = "Avg Balance", fill = "Cluster") +
+  theme_minimal()
+
+
+class(data)  # Should now return "numeric"
+
+data <- as.numeric(data)
+# Create a histogram
+hist(data, breaks = 20, col = "skyblue", main = "Histogram of Data Clusters", xlab = "Values")
+
+# Perform clustering
+clusters <- kmeans(data, centers = 2)  # Clustering
+
+
+# Compute the histogram without plotting
+scaled_df1 <- hist(df1$avg_balance_last_12months, plot = FALSE)  
+
+library(cluster)
+set.seed(123) # For reproducibility
+k <- 3 # Number of clusters
+kmeans_result <- kmeans(scaled_df1, centers = k)
+
+# Add cluster assignments to the data frame
+df1$Cluster <- kmeans_result$cluster
+print(df1)
+# Compute distance matrix
+distance_matrix <- dist(scaled_df1)
+
+# Perform hierarchical clustering
+hc <- hclust(distance_matrix, method = "ward.D2")
+
+# Plot the dendrogram
+plot(hc, main = "Dendrogram of Histograms", xlab = "", sub = "")
+
+# Cut the dendrogram to get clusters
+df1$Cluster <- cutree(hc, k = 3) # Adjust k as needed
+print(df1)
+
+# Heatmap of scaled data
+library(pheatmap)
+pheatmap(scaled_df1, cluster_rows = TRUE, cluster_cols = FALSE, annotation_row = data.frame(Cluster = as.factor(df1$Cluster)))
+
+# PCA for dimensionality reduction and scatter plot
+library(ggplot2)
+pca <- prcomp(scaled_df1, center = TRUE, scale. = TRUE)
+pca_data <- data.frame(pca$x, Cluster = as.factor(df1$Cluster))
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Cluster)) +
+  geom_point(size = 3) +
+  labs(title = "PCA of Histogram Clusters")
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+# Ensure the column and data frame are correct
+print(df1)
+colnames(df1)
+
+# Ensure the column is numeric
+df1$avg_balance_last_12months <- as.numeric(df1$avg_balance_last_12months)
+
+# Remove rows with missing values
+df1 <- na.omit(df1)
+
+# Perform K-means clustering
+set.seed(124) # For reproducibility
+k <- 3 # Number of clusters
+clustering <- kmeans(df1$avg_balance_last_12months, centers = k)
+clustering
+# Add the cluster labels to the data frame
+df1$cluster <- as.factor(clustering$cluster)
+
+# Plot the clustering histogram
+library(ggplot2)
+ggplot(df1, aes(x = avg_balance_last_12months, fill = cluster)) +
+  geom_histogram(binwidth = 500, color = "black", alpha = 0.7) +
+  labs(title = "Clustering Histogram",
+       x = "Avg Balance (Last 12 Months)",
+       y = "Count",
+       fill = "Cluster") +
+  theme_minimal()
+```
+
+
+```{r}
+# Load required library
+library(ggplot2)
+library(cluster)
+str(df1$avg_balance_last_12months)
+
+
+length(unique(df1$avg_balance_last_12months))
+# Assuming df1 is your data frame and avg_balance_last_12_months is your variable
+# Define the number of clusters you want (e.g., 4)
+num_clusters <- 4
+
+
+set.seed(123) # For reproducibility
+
+
+# Use k-means clustering to cluster the variable
+
+df1$Cluster <- kmeans(df1$avg_balance_last_12months, centers = num_clusters)$cluster
+
+# Convert clusters to a factor for visualization
+df1$Cluster <- as.factor(df1$Cluster)
+
+# Create the histogram
+ggplot(df1, aes(x = avg_balance_last_12months, fill = Cluster)) +
+  geom_histogram(binwidth = 1000, color = "black", alpha = 0.7) + # Adjust binwidth as needed
+  labs(
+    title = "Histogram of Avg Balance (Last 12 Months) by Clusters",
+    x = "Average Balance (Last 12 Months)",
+    y = "Count",
+    fill = "Cluster"
+  ) +
+  theme_minimal()
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+###########identify different distribution of clusters ###############
+
+# Load necessary library
+library(ggplot2)
+
+# Sample data (replace this with your actual data)
+set.seed(123)
+df1 <- data.frame(avg_balance_last_12months = c(runif(500, 0, 1000), 
+                                                  runif(300, 1000, 2000), 
+                                                  runif(200, 2000, 3000), 
+                                                  runif(100, 3000, 4000)))
+
+# Plot initial histogram to identify clusters
+hist(df1$avg_balance_last_12months, breaks = 30, col = "lightblue", main = "Overall Histogram", xlab = "Average Balance (Last 12 Months)")
+
+# Define cluster ranges based on histogram
+cluster_ranges <- list(
+  cluster1 = df1$avg_balance_last_12months[df1$avg_balance_last_12months < 1000],
+  cluster2 = df1$avg_balance_last_12months[df1$avg_balance_last_12months >= 1000 & df1$avg_balance_last_12_months < 2000],
+  cluster3 = df1$avg_balance_last_12months[df1$avg_balance_last_12months >= 2000 & df1$avg_balance_last_12_months < 3000],
+  cluster4 = df1$avg_balance_last_12months[df1$avg_balance_last_12months >= 3000]
+)
+
+# Plot separate histograms for each cluster
+par(mfrow = c(2, 2))  # Arrange plots in 2x2 grid
+
+for (i in 1:4) {
+  hist(cluster_ranges[[i]], 
+       breaks = 20, 
+       col = "lightgreen", 
+       main = paste("Cluster", i), 
+       xlab = "Average Balance (Last 12 Months)")
+}
+
+# Reset plotting layout
+par(mfrow = c(1, 1))
+```
+
+
+```{r}
+# Identify ranges for each cluster
+cluster_ranges <- aggregate(df1$avg_balance_last_12months, 
+                            by = list(Cluster = df1$Cluster), 
+                            FUN = range)
+
+# Split the range column into two separate columns: Min and Max
+cluster_ranges <- do.call(rbind, lapply(cluster_ranges$x, function(x) c(Min = x[1], Max = x[2])))
+cluster_ranges <- cbind(Cluster = as.character(1:nrow(cluster_ranges)), cluster_ranges)
+print(cluster_ranges)
+
+# Draw individual histograms for each cluster
+library(ggplot2)
+
+# Function to create a histogram for a specific cluster
+create_histogram <- function(data, cluster_num) {
+  ggplot(data, aes(x = avg_balance_last_12months)) +
+    geom_histogram(binwidth = 1000, color = "black", fill = "blue", alpha = 0.7) +
+    labs(
+      title = paste("Histogram of Avg Balance (Last 12 Months) - Cluster", cluster_num),
+      x = "Average Balance (Last 12 Months)",
+      y = "Count"
+    ) +
+    theme_minimal()
+}
+
+# Filter data for each cluster and plot histograms
+for (i in 1:num_clusters) {
+  cluster_data <- subset(df1, Cluster == as.character(i))
+  print(create_histogram(cluster_data, i))
+}
+```
+
+
+```{r}
+df_new<-read.csv("C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_date_converted.csv")
+head(df)
+
+# Assuming your data frame is named df
+missing_rows <- df_new[!complete.cases(df_new), ]
+print(missing_rows)
+
+df_no_missing <- df_new[complete.cases(df_new), ]
+df_no_missing
+
+# Remove rows with missing values in avg_balance_last_12months
+df_clean <- df_new[!is.na(df_new$avg_balance_last_12months), ]
+df_clean
+# Check the structure of the cleaned data frame
+summary(df_clean)
+
+####################Apply log transformation (assuming df_clean is the cleaned data frame)
+df_clean$log_avg_balance <- log(df_clean$avg_balance_last_12months)
+
+# Plot histogram to visualize the transformed data
+hist(df_clean$log_avg_balance, breaks = 30, col = "blue", 
+     main = "Log-transformed avg_balance_last_12months", 
+     xlab = "Log of avg_balance_last_12months")
+
+# Perform Shapiro-Wilk test for normality
+shapiro.test(df_clean$log_avg_balance)
+
+# QQ plot to check normality visually
+qqnorm(df_clean$log_avg_balance, main = "QQ Plot - Log-transformed Data")
+qqline(df_clean$log_avg_balance, col = "red", lwd = 2)
+```
+
+
+```{r}
+################box cox transformation ########
+# Ensure all values are positive (if needed, add a small constant)
+df_clean$avg_balance_last_12months <- df_clean$avg_balance_last_12months + 1e-5
+# Load the MASS library
+library(MASS)
+# Fit a linear model (Box-Cox requires a model object)
+model <- lm(avg_balance_last_12months ~ 1, data = df_clean)
+
+# Perform Box-Cox transformation
+bc <- boxcox(model, lambda = seq(-2, 2, by = 0.1))
+
+# Find the optimal lambda (maximizing log-likelihood)
+optimal_lambda <- bc$x[which.max(bc$y)]
+optimal_lambda
+# Apply the Box-Cox transformation
+if (optimal_lambda == 0) {
+  df_clean$boxcox_avg_balance <- log(df_clean$avg_balance_last_12months)
+} else {
+  df_clean$boxcox_avg_balance <- (df_clean$avg_balance_last_12months^optimal_lambda - 1) / optimal_lambda
+}
+
+# View summary of transformed data
+summary(df_clean$boxcox_avg_balance)
+
+# Histogram of the transformed data
+hist(df_clean$boxcox_avg_balance, breaks = 30, col = "blue", 
+     main = "Box-Cox Transformed Data", xlab = "Box-Cox Transformed Values")
+
+# Shapiro-Wilk test for normality
+shapiro.test(df_clean$boxcox_avg_balance)
+
+# QQ plot for visual inspection
+qqnorm(df_clean$boxcox_avg_balance, main = "QQ Plot - Box-Cox Transformed Data")
+qqline(df_clean$boxcox_avg_balance, col = "red", lwd = 2)
+```
+
+
+```{r}
+############### yeojohnson transformation ############
+# Install and load the required package
+#install.packages("bestNormalize")  # Run this if the package isn't installed
+library(bestNormalize)
+
+# Apply Yeo-Johnson transformation to the variable
+yeo <- yeojohnson(df_clean$avg_balance_last_12months)
+
+# View the transformed data
+df_clean$yeojohnson_avg_balance <- yeo$x.t
+
+# Summary of the transformation
+print(yeo)
+
+# Check transformed data
+summary(df_clean$yeojohnson_avg_balance)
+
+# Histogram to visualize transformed data
+hist(df_clean$yeojohnson_avg_balance, breaks = 30, col = "blue", 
+     main = "Yeo-Johnson Transformed Data", 
+     xlab = "Transformed avg_balance_last_12months")
+
+# Check normality of transformed data
+shapiro.test(df_clean$yeojohnson_avg_balance)
+
+# QQ plot for visual inspection
+qqnorm(df_clean$yeojohnson_avg_balance, main = "QQ Plot - Yeo-Johnson Transformed Data")
+qqline(df_clean$yeojohnson_avg_balance, col = "red", lwd = 2)
+```
+
+
+```{r}
+###################
+# Z-score transformation
+df_clean$zscore_avg_balance <- scale(df_clean$avg_balance_last_12months)
+
+# Summary of the transformed data
+summary(df_clean$zscore_avg_balance)
+
+# Check mean and standard deviation (should be ~0 and ~1 respectively)
+mean(df_clean$zscore_avg_balance)  # Should be close to 0
+sd(df_clean$zscore_avg_balance)    # Should be close to 1
+
+# Histogram to visualize the standardized data
+hist(df_clean$zscore_avg_balance, breaks = 30, col = "blue", 
+     main = "Z-Score Transformed Data", 
+     xlab = "Standardized avg_balance_last_12months")
+
+# Check normality of transformed data
+shapiro.test(df_clean$zscore_avg_balance)
+
+# QQ plot for normality check
+qqnorm(df_clean$zscore_avg_balance, main = "QQ Plot - Z-Score Transformed Data")
+qqline(df_clean$zscore_avg_balance, col = "red", lwd = 2)
+```
+
+
+```{r}
+##################### rank based transformation method avg balance  #####################
+df_new<-read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/data_date_converted - Copy.csv")
+head(df)
+
+# Assuming your data frame is named df
+missing_rows <- df_new[!complete.cases(df_new), ]
+print(missing_rows)
+
+df_no_missing <- df_new[complete.cases(df_new), ]
+df_no_missing
+
+# Remove rows with missing values in avg_balance_last_12months
+df_clean <- df_new[!is.na(df_new$avg_balance_last_12months), ]
+df_clean
+
+# Install and load the required package
+#install.packages("bestNormalize")  # Run this if the package isn't installed
+library(bestNormalize)
+
+# Apply Rank-Based Normalization (OrderNorm)
+rank_norm <- orderNorm(df_clean$avg_balance_last_12months)
+
+# Transformed data
+df_clean$rank_transformed_avg_balance <- rank_norm$x.t
+
+# Summary of the transformed data
+summary(df_clean$rank_transformed_avg_balance)
+
+# Visualize the transformed data
+hist(df_clean$rank_transformed_avg_balance, breaks = 30, col = "blue", 
+     main = "Rank-Based Transformed Data", 
+     xlab = "Transformed avg_balance_last_12months")
+
+# Check normality of transformed data
+#shapiro.test(df_clean$rank_transformed_avg_balance)
+
+# QQ plot to inspect normality visually
+qqnorm(df_clean$rank_transformed_avg_balance, main = "QQ Plot - Rank-Based Transformed Data")
+qqline(df_clean$rank_transformed_avg_balance, col = "red", lwd = 2)
+```
+
+
+```{r}
+#################
+##################### rank based transformation method fico score #####################
+df_new<-read.csv("C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_date_converted.csv")
+head(df)
+
+# Assuming your data frame is named df
+missing_rows <- df_new[!complete.cases(df_new), ]
+print(missing_rows)
+
+df_no_missing <- df_new[complete.cases(df_new), ]
+df_no_missing
+
+# Remove rows with missing values in avg_balance_last_12months
+df_clean <- df_new[!is.na(df_new$fico_score), ]
+df_clean
+
+
+# Install and load the required package
+#install.packages("bestNormalize")  # Run this if the package isn't installed
+library(bestNormalize)
+
+# Apply Rank-Based Normalization (OrderNorm)
+rank_norm <- orderNorm(df_clean$fico_score)
+
+# Transformed data
+df_clean$rank_transformed_fico_score <- rank_norm$x.t
+
+# Summary of the transformed data
+summary(df_clean$rank_transformed_fico_score)
+
+# Visualize the transformed data
+hist(df_clean$rank_transformed_fico_score, breaks = 30, col = "blue", 
+     main = "Rank-Based Transformed Data", 
+     xlab = "Transformed avg_balance_last_12months")
+
+# Check normality of transformed data
+shapiro.test(df_clean$rank_transformed_fico_score)
+
+# QQ plot to inspect normality visually
+qqnorm(df_clean$rank_transformed_fico_score, main = "QQ Plot - Rank-Based Transformed Data")
+qqline(df_clean$rank_transformed_fico_score, col = "red", lwd = 2)
+```
+
+```{r}
+### do not use this chunk##there is a  same chunk below
+
+df_new<-read.csv("C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_date_converted.csv")
+head(df_new)
+
+ sum(is.na(df_new))
+
+sum(is.na(df_new$avg_balance_last_12months))
+# Example dataset
+set.seed(123)
+data<-data.frame(
+  ID=1:7000,df_new
+
+)
+head(data)
+
+# Step 1: Arrange the data in ascending order avg balance last 12 months
+data_sorted <- data[order(data$avg_balance_last_12months, na.last = TRUE), ]
+data_sorted
+
+
+
+# Step 2: Rank-based transformation for non-missing values
+
+non_missing <- na.omit(data$avg_balance_last_12months)
+ranks <- rank(non_missing, ties.method = "average")
+normalized_ranks <- (ranks - 1) / (length(non_missing) - 1)
+
+# Step 3: Fit normal distribution
+mean_val <- mean(non_missing)
+mean_val
+
+sd_val <- sd(non_missing)
+sd_val
+
+
+# Step 4: Impute missing values
+num_missing <- sum(is.na(data$avg_balance_last_12months))
+num_missing
+
+imputed_values <- rnorm(num_missing, mean = mean_val, sd = sd_val)
+imputed_values
+
+# Step 5: Replace missing values
+data$avg_balance_last_12months[is.na(data$avg_balance_last_12months)] <- imputed_values
+
+
+# Step 6: Restore original order
+data_imputed <- data_sorted[order(data_sorted$ID), ]
+data_imputed
+
+sum(is.na(data_imputed$avg_balance_last_12months))
+
+# Display results
+print(data_imputed)
+
+sum(is.na(data$avg_balance_last_12months))
+
+# Combine original and imputed data for comparison
+data_before <- data.frame(
+  Value = na.omit(data$avg_balance_last_12months), # Remove NA values for the "Before" dataset
+  Type = "Before Imputation")
+
+data_after <- data.frame(
+  Value = data_imputed$avg_balance_last_12months,
+  Type = "After Imputation"
+)
+
+combined_data <- rbind(data_before, data_after)
+combined_data
+
+library(ggplot2)
+# Step 7: Plot histograms
+ggplot(data_before, aes(x = Value)) +
+  geom_histogram(binwidth = 10, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram Before Imputation", x = "Value", y = "Frequency") +
+  theme_minimal()
+
+ggplot(data_after, aes(x = Value)) +
+  geom_histogram(binwidth = 10, fill = "lightgreen", color = "black", alpha = 0.7) +
+  labs(title = "Histogram After Imputation", x = "Value", y = "Frequency") +
+  theme_minimal()
+```
+
+
+```{r}
+###########################################################################################################################################################################################################################################################################################################################################
+```
+
+
+```{r}
+###################avg balance imputation part after rank based method transformation##############
+# Load the dataset
+df_new <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/data_date_converted - Copy.csv")
+df_new
+
+sum(is.na(df_new$avg_balance_last_12months))
+# Example dataset
+set.seed(123)
+df_new<-data.frame(
+  ID=1:7000,df_new
+  
+)
+head(data)
+
+# Add an ID column if not already present
+if (!"ID" %in% colnames(df_new)) {
+  df_new$ID <- 1:nrow(df_new) # Assign unique IDs
+}
+
+# Step 1: Arrange the data in ascending order of avg_balance_last_12months
+data_sorted <- df_new[order(df_new$avg_balance_last_12months, na.last = TRUE), ]
+data_sorted
+
+# Step 2: Rank-based transformation for non-missing values
+non_missing <- na.omit(data_sorted$avg_balance_last_12months)
+ranks <- rank(non_missing, ties.method = "average")
+normalized_ranks <- (ranks - 1) / (length(non_missing) - 1)
+
+# Fit normal distribution to non-missing values
+mean_val <- mean(non_missing)
+mean_val
+sd_val <- sd(non_missing)
+sd_val
+
+# Step 3: Impute missing values using the normal distribution
+num_missing <- sum(is.na(data_sorted$avg_balance_last_12months))
+num_missing
+
+imputed_values <- rnorm(num_missing, mean = mean_val, sd = sd_val)
+imputed_values
+
+# Step 4: Replace NA values with the imputed values
+data_sorted$avg_balance_last_12months[is.na(data_sorted$avg_balance_last_12months)] <- imputed_values
+
+# Step 5: Restore the original order based on the ID column
+data_imputed_avg_12m <- data_sorted[order(data_sorted$ID), ]
+data_imputed_avg_12m
+colSums(is.na(data_imputed_avg_12m))
+
+# Step 6: Ensure there are no NA values in the final dataset
+sum(is.na(data_imputed_avg_12m$avg_balance_last_12months)) # Should return 0
+
+# Display the final dataset
+print(head(data_imputed_avg_12m))
+
+# Export the cleaned dataset if needed
+#write.csv(data_imputed_avg_12m, "C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_imputed_avg_12m.csv", row.names = FALSE)
+
+
+# Visualize the transformed data
+hist(data_imputed_avg_12m$avg_balance_last_12months, breaks = 30, col = "blue", 
+     main = "Rank-Based Transformed Data", 
+     xlab = "Transformed avg_balance_last_12months")
+
+```
+
+
+```{r}
+###############fico score  imputation part after rank based method transformation###
+#Fico score
+
+library(gridExtra)
+
+# Load the dataset
+data <- data.frame(data_imputed_avg_12m)#read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/data_date_converted - Copy.csv")
+
+str(data)
+
+sum(is.na(df_new))
+# Example dataset
+set.seed(123)
+#data<-data.frame(
+#  ID=1:7000,df_new
+#  )
+#head(data)
+# Step 1: Arrange the data in ascending order
+data_sorted <- data[order(data$fico_score, na.last = TRUE), ]
+
+data_sorted
+
+# Step 2: Rank-based transformation for non-missing values
+non_missing <- na.omit(data_sorted$fico_score)
+ranks <- rank(non_missing, ties.method = "average")
+normalized_ranks <- (ranks - 1) / (length(non_missing) - 1)
+
+# Step 3: Fit normal distribution
+mean_val <- mean(non_missing)
+sd_val <- sd(non_missing)
+
+sd_val
+
+# Step 4: Impute missing values
+num_missing <- sum(is.na(data_sorted$fico_score))
+imputed_values <- rnorm(num_missing, mean = mean_val, sd = sd_val)
+
+# Step 5: Replace missing values
+data_sorted$fico_score[is.na(data_sorted$fico_score)] <- imputed_values
+
+# Step 6: Restore original order
+data_imputed_fico <- data_sorted[order(data_sorted$ID), ]
+
+data_imputed_fico
+colSums(is.na(data_imputed_fico))
+
+qqnorm(data_imputed_fico$fico_score)
+  
+qqline(data_imputed_fico$fico_score, col = "red") # Add a reference line
+
+# Visualize the transformed data
+hist(data_imputed_fico$fico_score, breaks = 30, col = "blue", 
+     main = "Rank-Based Transformed Data", 
+     xlab = "Transformed fico_score")
+
+
+# Export the cleaned dataset if needed
+#write.csv(data_imputed_fico, "C:\\Users\\Piumi Dinesha\\Downloads\\IASSL\\data_imputed_fico.csv", row.names = FALSE)
+
+```
+
+```{r}
+#combine above two
+#df_avg_fico_imputed <- data.frame(
+# data_imputed_fico,
+#  data_imputed_avg_12m$avg_balance_last_12months
+#)
+
+#df_avg_fico_imputed <- df_avg_fico_imputed[,-14]
+#df_avg_fico_imputed
+```
+
+
+
+```{r}
+############number of delinquent accounts imputation part#########
+# Load the dataset
+data10 <- data.frame(data_imputed_fico)#read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/data_date_converted - Copy.csv")
+head(data10)
+#df_new <- data.frame
+# Install the package if not already installed
+#install.packages("VIM")  # For KNN imputation
+# or
+#install.packages("DMwR") # Alternative package
+
+# Load the package
+library(VIM)  # Or library(DMwR)
+
+
+# Check the structure of the variable
+str(data10$number_of_delinquent_accounts)
+
+# Replace null values (NA) if required
+# df_new$number_of_delinquents[is.null(df_new$number_of_delinquents)] <- NA
+
+# Replace NULLs with NA
+#df_new$number_of_delinquent_accounts[is.na(df_new$number_of_delinquent_accounts)] <- NA
+
+# Confirm presence of NAs
+sum(is.na(data10$number_of_delinquent_accounts))
+
+
+# Perform KNN imputation
+df_imputed_delinquent <- kNN(data10, variable = "number_of_delinquent_accounts", k = 5)
+df_imputed_delinquent
+colSums(is.na(df_imputed_delinquent))
+
+sum(is.na(df_imputed_delinquent$number_of_delinquent_accounts))
+
+
+#library(DMwR)
+
+
+# Export the imputed data if necessary
+#write.csv(df_new_imputed_delinquent, "C:\\Users\\Piumi Dinesha\\Downloads\\df_new_imputed_delinquent.csv", row.names = FALSE)
+```
+
+
+```{r}
+# Before imputation (original data without NAs)
+summary(data10$number_of_delinquent_accounts)
+
+# After imputation
+summary(df_imputed_delinquent$number_of_delinquent_accounts)
+
+library(ggplot2)
+
+# Compare density plots
+ggplot() +
+  geom_density(data = data10, aes(x = number_of_delinquent_accounts, color = "Original")) +
+  geom_density(data = df_imputed_delinquent, aes(x = number_of_delinquent_accounts, color = "Imputed")) +
+  labs(title = "Comparison of Original and Imputed Distributions")
+
+```
+
+
+```{r}
+
+###cross validation method
+#install.packages("caret")  # Install caret if not already installed
+library(caret)
+df_imputed_delinquent_a <- na.omit(df_imputed_delinquent)  # Removes rows with NAs
+df_imputed_delinquent_b <- na.omit(df_imputed_delinquent)  # Removes rows with NAs
+
+
+# Define cross-validation with 10 folds
+cv_control <- trainControl(method = "cv", number = 10)
+
+# Train a linear regression model with cross-validation
+model <- train(
+  number_of_delinquent_accounts ~ .,  # Formula: response ~ predictors
+  data = df_new_imputed_delinquent,   # Dataset
+  method = "lm",                      # Linear regression
+  trControl = cv_control              # Cross-validation settings
+)
+
+# View the model summary
+print(model)
+
+```
+
+```{r}
+#####Wald Test#####
+before_final <- data.frame(df_imputed_delinquent)
+before_final
+colSums(is.na(before_final))
+without_missing <- na.omit(df_imputed_delinquent)
+colSums(is.na(without_missing))
+
+str(before_final)
+# Fit logistic regression model
+model <- glm(unusual_submission_pattern ~  number_of_delinquent_accounts_imp, data = without_missing , family = binomial)
+
+# Summary provides Wald statistics for each coefficient
+summary(model)
+
+```
+
+```{r}
+##########logistic model for unusual_submission_pattern#################
+
+#1) Split data into training (70%) and testing (30%)
+library(caret)
+
+ # For reproducibility
+set.seed(123)
+train_index <- createDataPartition(without_missing$unusual_submission_pattern, p = 0.7, list = FALSE)
+train_data <- without_missing[train_index, ]
+test_data <- without_missing[-train_index, ]
+
+#2) Fit logistic regression model
+logit_model <- glm(unusual_submission_pattern ~  delinquency_status+  number_of_delinquent_accounts + number_of_defaulted_accounts  , data = train_data, family = binomial)
+
+# Summary of the model
+summary(logit_model)
+
+#3) Predict probabilities
+test_data$Predicted_Prob <- predict(logit_model, newdata = test_data, type = "response")
+
+# Classify based on threshold of 0.5
+test_data$Predicted_Class <- ifelse(test_data$Predicted_Prob > 0.5, 1, 0)
+
+#4) Confusion matrix
+conf_matrix <- table(test_data$unusual_submission_pattern, test_data$Predicted_Class)
+print(conf_matrix)
+
+# Calculate metrics
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+precision <- conf_matrix[2, 2] / sum(conf_matrix[, 2]) # TP / (TP + FP)
+recall <- conf_matrix[2, 2] / sum(conf_matrix[2, ])   # TP / (TP + FN)
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+# Summary metrics in a table
+metrics <- data.frame(
+  Metric = c("Accuracy", "Precision", "Recall", "F1 Score"),
+  Value = c(accuracy, precision, recall, f1_score)
+)
+print(metrics)
+
+#5) Install required package if not already
+if (!require(knitr)) install.packages("knitr")
+
+library(knitr)
+
+# Present metrics in a neat table
+kable(metrics, col.names = c("Metric", "Value"), caption = "Model Performance Metrics")
+
+```
+
+```{r}
+####Impute unusual submission patterns#############
+#1)Subset rows with and without missing Outcome
+train_data <- before_final[!is.na(before_final$unusual_submission_pattern), ]
+missing_data <- before_final[is.na(before_final$unusual_submission_pattern), ]
+
+#2) Fit logistic regression model
+logit_model <- glm(unusual_submission_pattern ~  delinquency_status+  number_of_delinquent_accounts + number_of_defaulted_accounts  , data = train_data, family = binomial)
+
+# Summary of the model
+summary(logit_model)
+
+#3)Predict probabilities for rows with missing Outcome
+missing_data$Predicted_Prob <- predict(logit_model, newdata = missing_data, type = "response")
+
+# Impute missing Outcome based on a threshold (e.g., 0.5)
+missing_data$Imputed_Outcome <- ifelse(missing_data$Predicted_Prob > 0.5, 1, 0)
+
+# Combine imputed data with the original dataset
+before_final[is.na(before_final$unusual_submission_pattern), "unusual_submission_pattern"] <- missing_data$Imputed_Outcome
+
+before_final$unusual_submission_pattern <- as.logical(before_final$unusual_submission_pattern)
+before_final
+```
+```{r}
+# Write to a CSV file
+write.csv(before_final, "C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/output.csv", row.names = TRUE)
+
+# Confirm the file is written
+print("Data written to 'output.csv'")
+
+
+```
+## ################################################################################################################################
+```{r}
+#logistic for carge off variable
+
+final <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/output.csv")
+
+
+# Split data into training (70%) and testing (30%)
+library(caret)
+
+str(final)
+
+set.seed(123) # For reproducibility
+train_index <- createDataPartition(final$charge_off_status, p = 0.7, list = FALSE)
+train_data <- final[train_index, ]
+test_data <- final[-train_index, ]
+
+```
+
+```{r}
+library(MASS)
+
+# Fit the full model
+full_model <- glm(charge_off_status ~ . , data = train_data, family = binomial)
+
+# Perform stepwise selection
+stepwise_model <- stepAIC(full_model, direction = "both", trace = TRUE)
+
+# Summary of the final model
+summary(stepwise_model)
+
+str(final)
+```
+
+```{r}
+# Predict probabilities
+test_data$Predicted_Prob <- predict(stepwise_model, newdata = test_data, type = "response")
+
+# Classify based on threshold of 0.5
+test_data$Predicted_Class <- ifelse(test_data$Predicted_Prob > 0.5, 1, 0)
+
+# Confusion matrix
+conf_matrix <- table(test_data$charge_off_status, test_data$Predicted_Class)
+print(conf_matrix)
+
+# Calculate metrics
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+precision <- conf_matrix[2, 2] / sum(conf_matrix[, 2]) # TP / (TP + FP)
+recall <- conf_matrix[2, 2] / sum(conf_matrix[2, ])   # TP / (TP + FN)
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+# Summary metrics in a table
+metrics <- data.frame(
+  Metric = c("Accuracy", "Precision", "Recall", "F1 Score"),
+  Value = c(accuracy, precision, recall, f1_score)
+)
+print(metrics)
+
+# Install required package if not already
+if (!require(knitr)) install.packages("knitr")
+
+library(knitr)
+
+# Present metrics in a neat table
+kable(metrics, col.names = c("Metric", "Value"), caption = "Model Performance Metrics")
+
+
+
+```
+```{r}
+####Assumptions in logistic regression model######
+library(car)
+vif(stepwise_model)
+
+cooksD <- cooks.distance(stepwise_model)
+plot(cooksD, main = "Cook's Distance")
+abline(h = 4 / nrow(train_data), col = "red")
+
+dispersion <- sum(residuals(stepwise_model, type = "pearson")^2) / df.residual(stepwise_model)
+dispersion 
+
+library(pscl)
+pR2(model)
+
+library(pROC)
+roc_curve <- roc(train_data$charge_off_status, fitted(stepwise_model))
+plot(roc_curve)
+auc(roc_curve)
+#We have better discrimitation with the logistic regression model
+
+```
+
+```{r}
+# Load required libraries
+library(randomForest)
+library(caret)
+
+# Ensure the response variable is binary
+train_data$charge_off_status <- as.factor(train_data$charge_off_status)
+test_data$charge_off_status <- as.factor(test_data$charge_off_status)
+
+# Train a Random Forest model
+set.seed(42)
+rf_model <- randomForest(
+  charge_off_status ~ age + fico_score + delinquency_status + 
+    new_accounts_opened_last_12months + public_records_flag,
+  data = train_data,
+  importance = TRUE,
+  ntree = 500
+)
+
+# View the model
+print(rf_model)
+
+# Predict on test data
+rf_predictions <- predict(rf_model, test_data, type = "response")
+
+# Confusion Matrix
+confusion_matrix <- confusionMatrix(rf_predictions, test_data$charge_off_status)
+print(confusion_matrix)
+
+# Variable importance plot
+varImpPlot(rf_model)
+
+# Extract key metrics
+accuracy <- confusion_matrix$overall['Accuracy']
+precision <- confusion_matrix$byClass['Precision']
+recall <- confusion_matrix$byClass['Recall']
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+# Summary table of performance metrics
+performance_summary <- data.frame(
+  Metric = c("Accuracy", "Precision", "Recall", "F1-Score"),
+  Value = c(accuracy, precision, recall, f1_score)
+)
+print(performance_summary)
+
+```
+
+```{r}
+# Load caret for RFE
+library(caret)
+
+
+# Define control for RFE
+control_rfe <- rfeControl(functions = rfFuncs, method = "cv", number = 5)
+
+# Perform RFE
+set.seed(42)
+rfe_results <- rfe(
+  train_data[, -which(names(train_data) == "charge_off_status")], 
+  train_data$charge_off_status,
+  sizes = c(1:22), # Subsets of predictors to test
+  rfeControl = control_rfe
+)
+
+# Print results
+print(rfe_results)
+
+plot(rfe_results, type = c("g", "o"))
+
+```
+
+```{r}
+# Print a summary of the RFE results
+summary(rfe_results)
+
+# Plot RFE results
+plot(rfe_results, type = c("g", "o"))
+
+# Extract the selected predictors from RFE
+selected_features <- predictors(rfe_results)
+print(paste("Selected Features:", paste(selected_features, collapse = ", ")))
+
+# Train an XGBoost model using the selected features
+set.seed(42)
+#xgb_model_selected <- train(
+#  as.formula(paste("charge_off_status ~", paste(selected_features, collapse = " #+ "))), 
+#  data = train_data,
+#  method = "xgbTree",
+#  trControl = train_control, # Use the same control settings as before
+#  tuneGrid = xgb_grid,
+#  metric = "ROC"            # Optimize based on AUC
+#)
+
+# Evaluate the model on the test data
+predictions <- predict(xgb_model_selected, newdata = test_data)
+conf_matrix <- confusionMatrix(predictions, test_data$charge_off_status)
+
+# Print the results
+print(xgb_model_selected)
+print(conf_matrix)
+
+```
+
+```{r}
+# Load necessary libraries
+library(xgboost)
+library(DiagrammeR)
+
+# Extract the underlying xgb.Booster model from the caret train object
+xgb_booster <- xgb_model_selected$finalModel
+
+# Visualize the first tree from the trained XGBoost model
+xgb.plot.tree(model = xgb_booster, trees = 1)
+
+# Alternatively, visualize other trees by changing the 'trees' parameter
+xgb.plot.tree(model = xgb_booster, trees = 2)
+
+
+```
+
+
+
+```{r}
+library(keras)
+
+install_keras()
+
+```
+
+```{r}
+
+final <- read.csv("C:/Users/Maneesha/Dropbox/My PC (DESKTOP-HBJAPG5)/Desktop/ML model/output.csv")
+
+
+# Split data into training (70%) and testing (30%)
+library(caret)
+
+str(final)
+
+set.seed(123) # For reproducibility
+train_index <- createDataPartition(final$charge_off_status, p = 0.7, list = FALSE)
+train_data <- final[train_index, ]
+test_data <- final[-train_index, ]
+```
+
+
+```{r}
+#######CNN model###############
+# Load necessary libraries
+library(keras)
+library(caret)
+
+# Prepare data
+# Assuming your data is already split into train_data and test_data
+
+# Preprocessing: Ensure all categorical variables are transformed into factors or numerics
+train_data$charge_off_status <- as.factor(train_data$charge_off_status)  # Ensure binary factor
+test_data$charge_off_status <- as.factor(test_data$charge_off_status)
+
+# Prepare training and test data
+train_x <- as.matrix(train_data[, -which(names(train_data) == "charge_off_status")])
+train_y <- as.integer(train_data$charge_off_status) - 1  # Convert to binary (0 and 1)
+test_x <- as.matrix(test_data[, -which(names(test_data) == "charge_off_status")])
+test_y <- as.integer(test_data$charge_off_status) - 1  # Convert to binary (0 and 1)
+
+
+# Ensure the data is numeric and select only numeric columns
+train_x <- train_data[, sapply(train_data, is.numeric)]
+test_x <- test_data[, sapply(test_data, is.numeric)]
+
+# Check for missing values and handle them (e.g., impute or remove NAs)
+train_x[is.na(train_x)] <- colMeans(train_x, na.rm = TRUE)[col(train_x)][is.na(train_x)]
+test_x[is.na(test_x)] <- colMeans(test_x, na.rm = TRUE)[col(test_x)][is.na(test_x)]
+
+# Scale the data (important for neural networks)
+train_x <- scale(train_x)
+test_x <- scale(test_x)
+
+# Now your data should be scaled and ready for training
+
+# Scale the data (important for neural networks)
+train_x <- scale(train_x)
+test_x <- scale(test_x)
+
+# Reshape data for CNN (make it compatible with CNN format)
+train_x <- array(train_x, dim = c(nrow(train_x), ncol(train_x), 1))  # Reshape for CNN (height, width, channels)
+test_x <- array(test_x, dim = c(nrow(test_x), ncol(test_x), 1))  # Same reshaping
+
+# Define CNN model
+model <- keras_model_sequential() %>%
+  layer_conv_1d(filters = 32, kernel_size = 3, activation = 'relu', input_shape = c(ncol(train_x), 1)) %>%
+  layer_max_pooling_1d(pool_size = 2) %>%
+  layer_conv_1d(filters = 64, kernel_size = 3, activation = 'relu') %>%
+  layer_max_pooling_1d(pool_size = 2) %>%
+  layer_flatten() %>%
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dropout(rate = 0.5) %>%
+  layer_dense(units = 1, activation = 'sigmoid')  # Sigmoid for binary classification
+
+# Compile the model
+model %>% compile(
+  loss = 'binary_crossentropy',   # Binary cross-entropy for binary classification
+  optimizer = optimizer_adam(),   # Adam optimizer
+  metrics = c('accuracy')
+)
+
+# Summary of the model architecture
+summary(model)
+
+# Train the CNN model
+history <- model %>% fit(
+  train_x, train_y,
+  epochs = 20,              # Number of epochs
+  batch_size = 32,          # Batch size
+  validation_split = 0.2,   # Use 20% of data for validation
+  verbose = 1
+)
+
+# Plot training history (accuracy and loss)
+plot(history)
+
+# Evaluate the model on the test set
+score <- model %>% evaluate(test_x, test_y)
+cat("Test loss:", score[1], "Test accuracy:", score[2])
+
+# Make predictions on the test set
+predictions <- model %>% predict(test_x)
+predictions <- ifelse(predictions > 0.5, 1, 0)  # Convert probabilities to binary outcomes
+
+# Create confusion matrix
+conf_matrix <- confusionMatrix(as.factor(predictions), as.factor(test_y))
+print(conf_matrix)
+
+# ROC Curve
+library(pROC)
+roc_curve <- roc(test_y, predictions)
+plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2)
+
+```
+```{r}
+# Logistic Model Metrics
+logistic_metrics <- data.frame(
+  Model = "Logistic Regression",
+  Accuracy = accuracy,                      # Replace with logistic model accuracy
+  Precision = precision,                    # Replace with logistic model precision
+  Recall = recall,                          # Replace with logistic model recall
+  F1_Score = f1_score                       # Replace with logistic model F1 score
+)
+
+# XGBoost Model Metrics
+xgb_metrics <- data.frame(
+  Model = "XGBoost",
+  Accuracy = as.numeric(confusion_matrix$overall['Accuracy']),       # XGBoost accuracy
+  Precision = as.numeric(confusion_matrix$byClass['Precision']),    # XGBoost precision
+  Recall = as.numeric(confusion_matrix$byClass['Recall']),          # XGBoost recall
+  F1_Score = 2 * (
+    as.numeric(confusion_matrix$byClass['Precision']) * 
+    as.numeric(confusion_matrix$byClass['Recall'])
+  ) / (
+    as.numeric(confusion_matrix$byClass['Precision']) + 
+    as.numeric(confusion_matrix$byClass['Recall'])
+  )  # F1 Score calculation
+)
+
+# CNN Model Metrics
+cnn_metrics <- data.frame(
+  Model = "CNN",
+  Accuracy = conf_matrix$overall['Accuracy'],                       # CNN accuracy
+  Precision = conf_matrix$byClass['Pos Pred Value'],               # CNN precision
+  Recall = conf_matrix$byClass['Sensitivity'],                     # CNN recall
+  F1_Score = 2 * (
+    conf_matrix$byClass['Pos Pred Value'] * 
+    conf_matrix$byClass['Sensitivity']
+  ) / (
+    conf_matrix$byClass['Pos Pred Value'] + 
+    conf_matrix$byClass['Sensitivity']
+  )  # F1 Score calculation
+)
+
+# Combine all metrics into a single table
+summary_table <- rbind(logistic_metrics, xgb_metrics, cnn_metrics)
+
+# Display the summary table
+print(summary_table)
+
+# Optionally, save the summary table to a CSV file
+#write.csv(summary_table, "model_performance_summary.csv", row.names = FALSE)
+
+```
+
+```{r}
+# Load necessary library
+library(knitr)
+
+# Combine all metrics into one table
+summary_table <- data.frame(
+  Model = c("Logistic Regression", "XGBoost", "CNN"),
+  Accuracy = c(logistic_metrics$Accuracy, xgb_metrics$Accuracy, cnn_metrics$Accuracy),
+  Precision = c(logistic_metrics$Precision, xgb_metrics$Precision, cnn_metrics$Precision),
+  Recall = c(logistic_metrics$Recall, xgb_metrics$Recall, cnn_metrics$Recall),
+  F1_Score = c(logistic_metrics$F1_Score, xgb_metrics$F1_Score, cnn_metrics$F1_Score)
+)
+
+# Display the table using kable
+kable(
+  summary_table, 
+  col.names = c("Model", "Accuracy", "Precision", "Recall", "F1 Score"), 
+  caption = "Model Performance Metrics"
+)
+
+```
+```{r}
+# Load the reticulate library to access Python functionality
+library(reticulate)
+
+# Import the Python keras package
+keras_py <- import("keras")
+
+# Use the plot_model function from Python keras
+keras_py$utils$plot_model(
+  model,
+  to_file = "cnn_model_architecture.png",  # Save the model plot as an image file
+  show_shapes = TRUE,                      # Show input/output shapes
+  show_layer_names = TRUE                  # Show layer names
+)
+
+# Display the saved model architecture
+library(png)
+library(grid)
+img <- readPNG("cnn_model_architecture.png")
+grid::grid.raster(img)
+
+# Optional: Clean up by removing the image file
+file.remove("cnn_model_architecture.png")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
